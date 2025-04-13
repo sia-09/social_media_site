@@ -1,0 +1,19 @@
+<!-- core/templates/core/feed.html -->
+{% extends 'main_base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+    <h4 class="mb-4 text-xl font-semibold">Your Feed....</h4>
+
+    {% for post in posts %}
+        {% include 'core/post_card.html' with post=post %}
+    {% empty %}
+        <p>No posts from followed users yet. Start following people!</p>
+    {% endfor %}
+</div>
+   
+
+{% endblock %}

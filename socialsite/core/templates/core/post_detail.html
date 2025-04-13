@@ -1,0 +1,410 @@
+{% extends 'main_base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+
+{% block content %}
+<style>
+    .post-container {
+        max-width: 470px;
+        margin: 20px auto;
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid #efefef;
+    }
+
+    .profile-pic {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 12px;
+        object-fit: cover;
+    }
+
+    .username {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .post-media {
+        width: 100%;
+        background: #fafafa;
+        display: flex;
+        justify-content: center;
+    }
+
+    .post-image, .post-video {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+    }
+
+    .post-actions {
+        padding: 6px 16px;
+    }
+
+    .action-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        margin-right: 16px;
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    .post-caption {
+        padding: 0 16px;
+        margin: 8px 0;
+        font-size: 14px;
+    }
+
+    .caption-username {
+        font-weight: 600;
+        margin-right: 4px;
+    }
+
+    .post-stats {
+        padding: 0 16px;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .post-time {
+        color: #8e8e8e;
+        font-size: 10px;
+        padding: 0 16px 16px;
+        text-transform: uppercase;
+    }
+
+    .comments-section {
+        border-top: 1px solid #efefef;
+        padding: 16px;
+    }
+
+    .comments-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .comment {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .comment-username {
+        font-weight: 600;
+        margin-right: 4px;
+    }
+
+    .comment-time {
+        display: block;
+        color: #8e8e8e;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .comment-text {
+    font-weight: normal;
+    color: #333;
+    margin-left: 4px;
+}
+
+
+    .add-comment {
+        display: flex;
+        border-top: 1px solid #efefef;
+        padding: 16px;
+        align-items: center;
+    }
+
+    .comment-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        resize: none;
+        height: 18px;
+        max-height: 80px;
+        font-size: 14px;
+    }
+
+    .post-btn {
+        color: #0095f6;
+        font-weight: 600;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .post-btn:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        padding: 16px;
+        color: #0095f6;
+        font-weight: 600;
+        text-decoration: none;
+        border-top: 1px solid #efefef;
+    }
+
+    .post-footer-buttons a.edit-btn,
+    .post-footer-buttons button.delete-btn {
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+}
+
+a.edit-btn {
+    background-color: #fbbc04; /* Yellow */
+}
+
+button.delete-btn {
+    background-color: #ea4335; /* Red */
+}
+
+.post-footer-buttons form {
+    margin: 0;
+    padding: 0;
+}
+
+.delete-comment-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.delete-comment-btn:hover {
+    color: #e53935; /* red on hover */
+}
+
+.reply {
+        margin-left: 20px;
+        font-size: 13px;
+        color: #444;
+        margin-top: 6px;
+    }
+
+    .reply-form {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+        align-items: center;
+        font-size: 13px;
+    }
+
+    .reply-input {
+        flex: 1;
+        padding: 4px 6px;
+        font-size: 13px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .reply-btn {
+        background-color: #0095f6;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .reply-btn:hover {
+        background-color: #0077cc;
+    }
+
+
+</style>
+
+<div class="post-container">
+    <!-- Post Header -->
+    <div class="post-header">
+        <img src="{{ post.author.profile.profile_picture.url }}" alt="Profile" class="profile-pic">
+        <span class="username">{{ post.author.username }}</span>
+    </div>
+    
+    <!-- Post Media -->
+    <div class="post-media">
+        {% if post.media %}
+            {% if post.is_image %}
+                <img src="{{ post.media.url }}" alt="Post Image" class="post-image">
+            {% elif post.is_video %}
+                <video controls class="post-video">
+                    <source src="{{ post.media.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <!-- Post Actions -->
+    <div class="post-actions">
+        <form id="like-form" data-post-id="{{ post.id }}">
+            {% csrf_token %}
+            <button type="submit" class="action-btn like-btn" id="like-btn">
+                <span id="like-icon">{% if request.user in post.likes.all %}❤️{% else %}🤍{% endif %}</span>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Like Count -->
+    <div class="post-stats">
+        <span id="like-count">{{ post.likes.count }} likes</span>
+    </div>
+    
+    <!-- Post Caption -->
+    {% if post.caption %}
+    <div class="post-caption">
+        <span class="caption-username">{{ post.author.username }}</span>
+        <p>{{ post.caption|mentionify }}</p>
+
+    </div>
+    {% endif %}
+
+    
+
+
+
+
+    
+    <!-- Post Time -->
+    <div class="post-time">
+        {{ post.created_at|naturaltime }}
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <div class="comments-title">Comments</div>
+        
+        {% if comments %}
+            {% for comment in comments %}
+                {% if not comment.parent %}
+                <div class="comment">
+                    <span class="comment-username">{{ comment.user.username }}</span>
+                    <p>{{ comment.content|mentionify|safe }}</p>
+                    <div class="comment-time">{{ comment.created_at|naturaltime }}</div>
+
+                    {% if comment.user == request.user %}
+                    <form method="POST" action="{% url 'delete_comment' post.id comment.id %}" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-comment-btn" title="Delete comment">🗑️</button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Replies -->
+                    {% for reply in comment.replies.all %}
+                    <div class="reply">
+                        <strong>{{ reply.user.username }}</strong> {{ reply.content|mentionify|safe }}
+                        <div class="comment-time">{{ reply.created_at|naturaltime }}</div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Reply Form -->
+                    <form method="POST" action="{% url 'add_comment' post.id %}" class="reply-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                        <input type="text" name="content" placeholder="Reply..." class="reply-input" required>
+                        <button type="submit" class="reply-btn">Reply</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="comment">No comments yet.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Add Comment -->
+    <form method="POST" action="{% url 'add_comment' post.pk %}" class="add-comment">
+        {% csrf_token %}
+        <textarea name="comment" class="comment-input" placeholder="Add a comment..." rows="1" required></textarea>
+        <button type="submit" class="post-btn" disabled>Post</button>
+    </form>
+    
+    <!-- Post Footer Buttons -->
+<div class="post-footer-buttons" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid #efefef;">
+    
+    {% if user == post.author %}
+    <a href="{% url 'edit_post' post.id %}" class="edit-btn">Edit Post</a>
+    {% else %}
+    <div></div>
+    {% endif %}
+
+    <a href="{% url 'view_profile' post.author.username %}" class="back-link" style="text-align: center;">← Back to profile</a>
+
+    {% if user == post.author %}
+    <form action="{% url 'delete_post' post.id %}" method="POST" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</button>
+    </form>
+    {% else %}
+    <div></div>
+    {% endif %}
+</div>
+
+
+</div>
+
+<script>
+    document.getElementById('like-form').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent form from reloading page
+    
+        const postId = this.dataset.postId;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+        fetch(`/like/${postId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = document.getElementById('like-icon');
+            const count = document.getElementById('like-count');
+            icon.textContent = data.liked ? '❤️' : '🤍';
+            count.textContent = `${data.like_count} likes`;
+        })
+        .catch(error => {
+            console.error('Like failed:', error);
+        });
+    });
+    </script>
+    
+
+<script>
+    // Auto-expand textarea and enable/disable post button
+    const textarea = document.querySelector('.comment-input');
+    const postBtn = document.querySelector('.post-btn');
+    
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        postBtn.disabled = this.value.trim().length === 0;
+    });
+</script>
+{% endblock %}

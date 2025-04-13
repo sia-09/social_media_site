@@ -1,0 +1,35 @@
+{% extends 'main_base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<h3 style="font-size: 22px; margin-bottom: 20px;">Search Results for "{{ query }}"</h3>
+
+{% if profiles %}
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        {% for profile in profiles %}
+            <div style="display: flex; align-items: center;">
+                <a href="{% url 'view_profile' profile.user.username %}" style="display: flex; align-items: center; text-decoration: none; color: black;">
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture"
+                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                    <span style="font-size: 16px;">{{ profile.user.username }}</span>
+                </a>
+
+                {% if profile in current_user_profile.following.all %}
+                    <form method="post" action="{% url 'unfollow_user' profile.user.username %}" style="margin-left: 15px;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: #eee; border: none; padding: 6px 12px; border-radius: 5px;">Unfollow</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'follow_user' profile.user.username %}" style="margin-left: 15px;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: #4e73df; color: white; border: none; padding: 6px 12px; border-radius: 5px;">Follow</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No users found.</p>
+{% endif %}
+{% endblock %}

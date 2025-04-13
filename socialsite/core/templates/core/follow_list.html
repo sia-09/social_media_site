@@ -1,0 +1,15 @@
+{% if users %}
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        {% for profile in users %}
+            <li style="display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #444;">
+                <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.username }}'s profile picture"
+                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px;">
+                <a href="{% url 'view_profile' profile.user.username %}" style="color: white; text-decoration: none; font-weight: 500;">
+                    {{ profile.user.username }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p style="text-align: center;">No users to show.</p>
+{% endif %}

@@ -1,0 +1,139 @@
+{% extends 'main_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .edit-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 24px;
+    }
+    
+    .edit-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 20px 0 10px 0;
+        color: #262626;
+    }
+    
+    .caption-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 100px;
+        margin: 0; /* Remove any default margins */
+    }
+    
+    .current-image-container {
+        margin: 16px 0;
+        text-align: center;
+    }
+    
+    .current-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        border: 1px solid #efefef;
+    }
+    
+    .file-input-container {
+        margin: 16px 0;
+    }
+    
+    .file-input-label {
+        display: inline-block;
+        padding: 8px 16px;
+        background: #fafafa;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .save-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #0095f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 16px;
+    }
+    
+    .back-link-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .back-link {
+        color: #0095f6;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+    }
+</style>
+
+<div class="edit-container">
+    <h1 class="edit-title">Edit Post</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Caption Section -->
+        <h2 class="section-title">Caption</h2>
+        <textarea name="caption" class="caption-input" id="id_caption">{{ form.initial.caption }}</textarea>
+
+        
+        <!-- Current Image Section -->
+        {% if form.image.value %}
+        <h2 class="section-title">Current Image</h2>
+        <div class="current-image-container">
+            <img src="{{ form.image.value.url }}" alt="Current post image" class="current-image">
+        </div>
+        {% endif %}
+        
+        <!-- Change Image Section -->
+        <h2 class="section-title">Change Image</h2>
+        <div class="file-input-container">
+            <label for="id_image" class="file-input-label">Choose File</label>
+            <input type="file" name="image" id="id_image" style="display: none;">
+        </div>
+        
+        <!-- Save Button -->
+        <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+    
+    <!-- Back Link - Centered -->
+    <div class="back-link-container">
+        <a href="{% url 'post_detail' post.id %}" class="back-link">← Back to post</a>
+    </div>
+</div>
+
+<script>
+    // Update file name display when file is selected
+    document.getElementById('id_image').addEventListener('change', function(e) {
+        const label = document.querySelector('.file-input-label');
+        if (e.target.files.length > 0) {
+            label.textContent = e.target.files[0].name;
+        } else {
+            label.textContent = 'Choose File';
+        }
+    });
+</script>
+{% endblock %}
